@@ -23,7 +23,7 @@ class SignIn extends Component {
       try {
         const response = await api.post("/api/auth/signin", { usernameOrEmail, password });
         console.log('👉 Returned data:', response);
-        login(response.data.token);
+        login(response.data.accessToken);
         this.props.history.push("/home");
       } catch (err) {
         this.setState({

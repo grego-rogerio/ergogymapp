@@ -2,27 +2,21 @@ import React, { Component } from 'react';
 import { Button, ButtonGroup, Container, Table } from 'reactstrap';
 import AppNavbar from '../../AppNavbar';
 import { Link, withRouter } from 'react-router-dom';
-import { instanceOf } from 'prop-types';
-import { withCookies, Cookies } from 'react-cookie';
+import api from "../../services/api";
 
 class EmpresaList extends Component {
-  static propTypes = {
-    cookies: instanceOf(Cookies).isRequired
-  };
-
+ 
   constructor(props) {
     super(props);
-    const {cookies} = props;
-    this.state = {empresas: [], csrfToken: cookies.get('XSRF-TOKEN'), isLoading: true};
+    this.state = {empresas: [], isLoading: true};
     this.remove = this.remove.bind(this);
   }
   
   componentDidMount() {
     this.setState({isLoading: true});
-    fetch('/empresa', {credentials: 'include'})
-    .then(response => response.json())
-    .then(data => this.setState({empresas: data, isLoading: false}))
-    .catch(() => this.props.history.push('/'));
+    api.get('/empresa').then( res => {
+      this.setState({ empresas: res.data, isLoading: false})
+    });
   }
 
   async remove(id) {
@@ -36,7 +30,21 @@ class EmpresaList extends Component {
       return <p>Loading...</p>;
     }
 
-    
+    const empresaList = empresas.map(empresa => {
+      return <tr key={empresa.id}>
+      <td style={{whiteSpace: 'nowrap'}}>{empresa.razaoSocial}</td>
+        <td style={{whiteSpace: 'nowrap'}}>{empresa.nomeFantasia}</td>
+        <td style={{whiteSpace: 'nowrap'}}>{empresa.cnpj}</td>
+        <td style={{whiteSpace: 'nowrap'}}>{empresa.telefone}</td>
+        <td style={{whiteSpace: 'nowrap'}}>{empresa.celular}</td>
+        <td>
+          <ButtonGroup>
+            <Button size="sm" color="primary" tag={Link} to={"/empresa/" + empresa.id}>Edit</Button>
+            <Button size="sm" color="danger" onClick={() => this.remove(empresa.id)}>Delete</Button>
+          </ButtonGroup>
+        </td>
+      </tr>
+    });
 
     return (
       <div>
@@ -58,7 +66,7 @@ class EmpresaList extends Component {
             </tr>
             </thead>
             <tbody>
-            
+            {empresaList}
             </tbody>
           </Table>
         </Container>
@@ -67,4 +75,4 @@ class EmpresaList extends Component {
   }
 }
 
-export default withCookies(withRouter(EmpresaList));
+export default withRouter(EmpresaList);
