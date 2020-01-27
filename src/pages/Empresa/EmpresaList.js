@@ -14,12 +14,16 @@ class EmpresaList extends Component {
   
   componentDidMount() {
     this.setState({isLoading: true});
-    api.get('/empresa').then( res => {
-      this.setState({ empresas: res.data, isLoading: false})
-    });
+    const response = api.get('/empresa').then( res => {this.setState({ empresas: res.data, isLoading: false})
+    console.log("Response Dimount Empresa ",response);  
+  });
   }
 
   async remove(id) {
+
+  }
+
+  async edit(id) {
 
   }
 
@@ -39,7 +43,7 @@ class EmpresaList extends Component {
         <td style={{whiteSpace: 'nowrap'}}>{empresa.celular}</td>
         <td>
           <ButtonGroup>
-            <Button size="sm" color="primary" tag={Link} to={"/empresa/" + empresa.id}>Edit</Button>
+            <Button size="sm" color="primary" onClick={() => this.edit(empresa.id)}>Edit</Button>
             <Button size="sm" color="danger" onClick={() => this.remove(empresa.id)}>Delete</Button>
           </ButtonGroup>
         </td>
