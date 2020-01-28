@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Button, ButtonGroup, Container, Table } from 'reactstrap';
 import AppNavbar from '../../AppNavbar';
-import { Link, withRouter } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import api from "../../services/api";
 
 class EmpresaList extends Component {
@@ -20,11 +20,22 @@ class EmpresaList extends Component {
   }
 
   async remove(id) {
-
+    await api.remove('/empresa/'+id, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+      let updatedEmpresas = [...this.state.empresas].filter(i => i.id !== id);
+      this.setState({empresas: updatedEmpresas});
+ 
   }
 
   async edit(id) {
+    this.props.history.push("/empresa/" + id);
+  }
 
+  async createNew() {
+    this.props.history.push("/empresa/new");
   }
 
   render() {
@@ -55,7 +66,7 @@ class EmpresaList extends Component {
         <AppNavbar/>
         <Container fluid>
           <div className="float-right">
-            <Button color="success" tag={Link} to="/empresa/new">Add Empresa</Button>
+            <Button color="success" onClick={() => this.createNew()} >Add Empresa</Button>
           </div>
           <h3>Empresas</h3>
           <Table className="mt-4">

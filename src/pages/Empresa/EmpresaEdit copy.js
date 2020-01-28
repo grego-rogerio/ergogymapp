@@ -2,10 +2,14 @@ import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import { Button, Container, Form, FormGroup, Input, Label } from 'reactstrap';
 import AppNavbar from '../../AppNavbar';
+import { instanceOf } from 'prop-types';
+import { Cookies, withCookies } from 'react-cookie';
 import InputMask from 'react-input-mask';
-import api from "../../services/api";
 
 class EmpresaEdit extends Component {
+  static propTypes = {
+    cookies: instanceOf(Cookies).isRequired
+  };
 
   emptyItem = {
     razaoSocial: '',
@@ -30,24 +34,24 @@ class EmpresaEdit extends Component {
 
   constructor(props) {
     super(props);
-
+    const { cookies } = props;
     this.state = {
-      item: this.emptyItem
+      item: this.emptyItem,
+      csrfToken: cookies.get('XSRF-TOKEN')
     };
-
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    console.log("Token: " + csrfToken);
+    console.log("Token2" + this.state.csrfToken);
   }
 
   async componentDidMount() {
     if (this.props.match.params.id !== 'new') {
       try {
-        const response = api.get(`/empresa/${this.props.match.params.id}`).then( res => {this.setState({ item: res.data})
-        console.log("Response Dimount Empresa ",response);  
-      });
-        
+        const empresa = await (await fetch(`/empresa/${this.props.match.params.id}`, { credentials: 'include' })).json();
+        this.setState({ item: empresa });
       } catch (error) {
-        this.props.history.push('/empresas/');
+        this.props.history.push('/empresa/');
       }
     }
   }
@@ -60,6 +64,10 @@ class EmpresaEdit extends Component {
     item[name] = value;
     this.setState({ item });
   }
+
+
+  
+
 
   handleValidation() {
     let item = { ...this.state.item };
@@ -107,27 +115,23 @@ class EmpresaEdit extends Component {
     return formIsValid;
   }
 
+
   async handleSubmit(event) {
     event.preventDefault();
-    const { item } = this.state;
+    const { item, csrfToken } = this.state;
 
     if (this.handleValidation()) {
-      var response = null;
-      console.log('Valor String',JSON.stringify(item));
-      if(item.id){
-        console.log('com id: PUT');
-        response =  await api.put('/empresa/' + item.id, JSON.stringify(item), {
-          headers: {
-              'Content-Type': 'application/json'
-          }});
-      }else{
-        console.log('SEM id: POST');
-        response =  await api.post('/empresa/', JSON.stringify(item), {
-          headers: {
-              'Content-Type': 'application/json'
-          }});
-      }
-      console.log('👉 Returned data:', response);
+      item.id = (item.id) ? item.id : '';
+      await fetch('/empresa/' + item.id, {
+        method: (item.id) ? 'PUT' : 'POST',
+        headers: {
+          'X-XSRF-TOKEN': this.state.csrfToken,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(item),
+        credentials: 'include'
+      });
       this.props.history.push('/empresas');
     } else {
       console.log('validation failed');
@@ -271,4 +275,4 @@ class EmpresaEdit extends Component {
   }
 }
 
-export default withRouter(EmpresaEdit);
+export default withCookies(withRouter(EmpresaEdit));
