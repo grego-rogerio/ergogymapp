@@ -20,7 +20,7 @@ class EmpresaList extends Component {
   }
 
   async remove(id) {
-    await api.remove('/empresa/'+id, {
+    await api.delete('/empresa/'+id, {
       headers: {
         'Content-Type': 'application/json'
       }
