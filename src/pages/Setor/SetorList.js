@@ -69,7 +69,7 @@ class SetorList extends Component {
             <thead>
             <tr>
               <th width="20%">Nome </th>
-              <th width="10%">Actions</th>
+              <th width="10%">Ação</th>
             </tr>
             </thead>
             <tbody>

@@ -9,6 +9,8 @@ import SetorList from "./pages/Setor/SetorList";
 import SetorEdit from "./pages/Setor/SetorEdit";
 import FuncaoList from "./pages/Funcao/FuncaoList";
 import FuncaoEdit from "./pages/Funcao/FuncaoEdit";
+import EstudoErgonomicoList from "./pages/EstudoErgonomico/EstudoErgonomicoList";
+import EstudoErgonomicoEdit from "./pages/EstudoErgonomico/EstudoErgonomicoEdit";
 import { isAuthenticated } from "./services/auth";
 
 const PrivateRoute = ({ component: Component, ...rest }) => (
@@ -36,6 +38,8 @@ const Routes = () => (
       <PrivateRoute path="/setor/:id" component={SetorEdit} />
       <PrivateRoute path="/funcoes" component={FuncaoList} />
       <PrivateRoute path="/funcao/:id" component={FuncaoEdit} />
+      <PrivateRoute path="/estudosErgonomicos" component={EstudoErgonomicoList} />
+      <PrivateRoute path="/estudoErgonomico/:id" component={EstudoErgonomicoEdit} />
       <Route path="*" component={() => <h1>Page not found</h1>} />
     </Switch>
   </BrowserRouter>

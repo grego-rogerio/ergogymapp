@@ -13,6 +13,7 @@ class Home extends Component {
           <li><Link to="/empresas">Cadastro de Empresas</Link></li>
           <li><Link to="/setores">Cadastro de Setor</Link></li>
           <li><Link to="/funcoes">Cadastro de Função</Link></li>
+          <li><Link to="/estudosErgonomicos">Questionário de Estudo Ergonômico</Link></li>
         </Container>
       </div>
     );

@@ -4,11 +4,10 @@ import { Button, Container, Form, FormGroup, Input, Label } from 'reactstrap';
 import AppNavbar from '../../AppNavbar';
 import api from "../../services/api";
 
-class FuncaoEdit extends Component {
+class SetorEdit extends Component {
 
   emptyItem = {
     nome: '',
-    setor: '',
     errors: {}
   };
 
@@ -16,7 +15,6 @@ class FuncaoEdit extends Component {
     super(props);
 
     this.state = {
-      setores: [],
       item: this.emptyItem
     };
 
@@ -27,24 +25,14 @@ class FuncaoEdit extends Component {
   async componentDidMount() {
     if (this.props.match.params.id !== 'new') {
       try {
-        const response = api.get(`/funcao/${this.props.match.params.id}`).then(res => {
-          this.setState({ item: res.data })
-          console.log("Response Dimount Funcao ", response);
-          console.log('Funcao: ', this.state.item);
-        });
+        const response = api.get(`/setor/${this.props.match.params.id}`).then( res => {this.setState({ item: res.data})
+        console.log("Response Dimount Setor ",response);  
+      });
+        
       } catch (error) {
-        this.props.history.push('/funcoes/');
+        this.props.history.push('/setores/');
       }
-    } 
-      try {
-        const resp_setor = api.get(`/setor`).then(res => {
-          this.setState({ setores: res.data })
-          console.log("Response Dimount Setor ", resp_setor);
-        });
-      } catch (error) {
-        this.props.history.push('/funcoes/');
-      }
-    
+    }
   }
 
   handleChange(event) {
@@ -52,13 +40,8 @@ class FuncaoEdit extends Component {
     const value = target.value;
     const name = target.name;
     let item = { ...this.state.item };
-    (name === 'setor') ? item[name] = JSON.parse(value) : item[name] = value;
-
+    item[name] = value;
     this.setState({ item });
-    console.log('Setor Change:', item);
-    console.log('value:', value);
-    console.log('name:', name);
-
   }
 
   handleValidation() {
@@ -70,10 +53,6 @@ class FuncaoEdit extends Component {
       formIsValid = false;
       errors["nome"] = "O Campo  \"Nome\" é obrigatorio!";
     }
-    if (!item["setor"]) {
-      formIsValid = false;
-      errors["setor"] = "O Campo  \"Setor\" é obrigatorio!";
-    }
     this.setState({ errors: errors });
     return formIsValid;
   }
@@ -84,38 +63,30 @@ class FuncaoEdit extends Component {
 
     if (this.handleValidation()) {
       var response = null;
-      console.log('Valor String', JSON.stringify(item));
-      if (item.id) {
+      console.log('Valor String',JSON.stringify(item));
+      if(item.id){
         console.log('com id: PUT');
-        response = await api.put('/funcao/' + item.id, JSON.stringify(item), {
+        response =  await api.put('/setor/' + item.id, JSON.stringify(item), {
           headers: {
-            'Content-Type': 'application/json'
-          }
-        });
-      } else {
+              'Content-Type': 'application/json'
+          }});
+      }else{
         console.log('SEM id: POST');
-        response = await api.post('/funcao/', JSON.stringify(item), {
+        response =  await api.post('/setor/', JSON.stringify(item), {
           headers: {
-            'Content-Type': 'application/json'
-          }
-        });
+              'Content-Type': 'application/json'
+          }});
       }
       console.log('👉 Returned data:', response);
-      console.log('👉 Valor Final Setor:', this.state.item.setor);
-      this.props.history.push('/funcoes');
+      this.props.history.push('/setores');
     } else {
       console.log('validation failed');
-
     }
   }
 
   render() {
     const { item } = this.state;
-    const title = <h2>{item.id ? 'Edit Funcao' : 'Add Funcao'}</h2>;
-
-    var autores = this.state.setores.map(function (setor) {
-      return <option key={setor.id} value={JSON.stringify(setor)}>{setor.nome}</option>;
-    });
+    const title = <h2>{item.id ? 'Edit Setor' : 'Add Setor'}</h2>;
 
     return <div>
       <AppNavbar />
@@ -129,16 +100,8 @@ class FuncaoEdit extends Component {
             {(this.state.errors) ? <span style={{ color: "red" }}>{this.state.errors["nome"]}</span> : ''}
           </FormGroup>
           <FormGroup>
-            <Label for="setor" >Setor<span style={{ color: "red" }}>*</span></Label>
-            <select value={JSON.stringify(item.setor)} name="setor" onChange={this.handleChange} >
-              <option value="">Selecione</option>
-              {autores}
-            </select>
-            {(this.state.errors) ? <span style={{ color: "red" }}>{this.state.errors["setor"]}</span> : ''}
-          </FormGroup>
-          <FormGroup>
             <Button color="primary" type="submit">Save</Button>{' '}
-            <Button color="secondary" tag={Link} to="/funcoes">Cancel</Button>
+            <Button color="secondary" tag={Link} to="/setores">Cancel</Button>
           </FormGroup>
         </Form>
       </Container>
@@ -146,4 +109,4 @@ class FuncaoEdit extends Component {
   }
 }
 
-export default withRouter(FuncaoEdit);
+export default withRouter(SetorEdit);

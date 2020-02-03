@@ -47,7 +47,7 @@ class EmpresaList extends Component {
 
     const empresaList = empresas.map(empresa => {
       return <tr key={empresa.id}>
-      <td style={{whiteSpace: 'nowrap'}}>{empresa.razaoSocial}</td>
+        <td style={{whiteSpace: 'nowrap'}}>{empresa.razaoSocial}</td>
         <td style={{whiteSpace: 'nowrap'}}>{empresa.nomeFantasia}</td>
         <td style={{whiteSpace: 'nowrap'}}>{empresa.cnpj}</td>
         <td style={{whiteSpace: 'nowrap'}}>{empresa.telefone}</td>
@@ -74,10 +74,10 @@ class EmpresaList extends Component {
             <tr>
               <th width="20%">Razão Social </th>
               <th width="20%">Nome Fantasia</th>
-              <th width="20%">cnpj</th>
+              <th width="20%">CNPJ</th>
               <th width="20%">Telefone</th>
               <th width="20%">Celular</th>
-              <th width="10%">Actions</th>
+              <th width="10%">Ação</th>
             </tr>
             </thead>
             <tbody>

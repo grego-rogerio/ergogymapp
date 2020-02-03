@@ -63,7 +63,7 @@ class FuncaoList extends Component {
         <AppNavbar/>
         <Container fluid>
           <div className="float-right">
-            <Button color="success" onClick={() => this.createNew()} >Add Funcao</Button>
+            <Button color="success" onClick={() => this.createNew()} >Add Função</Button>
           </div>
           <h3>Funcoes</h3>
           <Table className="mt-4">
@@ -71,7 +71,7 @@ class FuncaoList extends Component {
             <tr>
               <th width="20%">Nome</th>
               <th width="20%">Setor</th>
-              <th width="10%">Actions</th>
+              <th width="10%">Ação</th>
             </tr>
             </thead>
             <tbody>
