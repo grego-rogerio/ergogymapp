@@ -6,13 +6,6 @@ import api from "../../services/api";
 
 class SetorList extends Component {
 
-  emptyItem = {
-    empresa: '',
-    setor: '',
-    funcao: '',
-    errors: {}
-  };
-
   constructor(props) {
     super(props);
 
@@ -20,10 +13,15 @@ class SetorList extends Component {
       estudosErgonomicos: [],
       empresas: [],
       setores: [],
-      item: this.emptyItem,
+      funcoes: [],
+      empresa: '',
+      setor: '',
+      funcao: '',
+      errors: {},
       isLoading: true
     };
     this.remove = this.remove.bind(this);
+    this.handleChange = this.handleChange.bind(this);
   }
 
   componentDidMount() {
@@ -34,33 +32,56 @@ class SetorList extends Component {
         this.setState({ empresas: res.data, isLoading: false })
         console.log("Response Dimount Empresa ", response);
       });
-      const responseSetor = api.get('/setor').then(res => {
+      const responseSetor = api.get('/setor/funcao').then(res => {
         this.setState({ setores: res.data, isLoading: false })
         console.log("Response Dimount Empresa ", responseSetor);
       });
     } catch (error) {
       this.props.history.push('/home');
     }
-let item = JSON.parse(this.emptyItem);
-    this.setState(item);
   }
 
   handleChange(event) {
+    this.setState({ isLoading: true });
     const target = event.target;
-    const value = target.value;
+    const value = (target.value)?JSON.parse(target.value):target.value;
     const name = target.name;
-    let item = { ...this.state.item };
-    item[name] = JSON.parse(value);
-    this.setState({ item });
-
+    console.log('Name: ', name);
+    if (name === 'empresa') {
+      this.setState({ empresa: value, isLoading: false })
+    } else if (name === 'funcao') {
+      this.setState({ funcao: value, isLoading: false })
+    } else if (name === 'setor') {
+      this.setState({ setor: value });
+      console.log('setor.id', value.id);
+      try {
+        const response = api.get(`/funcao/setor/${value.id}`).then(res => {
+          this.setState({ funcoes: res.data, isLoading: false })
+          console.log("Response Dimount Empresa ", response);
+        });
+      } catch (error) {
+        this.props.history.push('/home');
+      }
+    }
   }
 
   async pesquisar() {
-    this.setState({ isLoading: true });
-    const response = await api.get('/estudoErgonomico').then(res => {
-      this.setState({ estudosErgonomicos: res.data, isLoading: false })
-      console.log("Response Dimount Setor ", response);
-    });
+
+    if (this.handleValidation(true)) {
+      
+      const { empresa, setor, funcao } = this.state;
+      try{
+      let parametro = '?idEmpresa=' + empresa.id;
+      (funcao) ? parametro += '&idSetor=' + setor.id + '&idFuncao=' + funcao.id : (setor) ? parametro += '&idSetor=' + setor.id : parametro += '';
+      console.log('Parametro', parametro);
+      await api.get(`/estudoErgonomico/filtros${parametro}`).then(res => {
+        this.setState({ estudosErgonomicos: res.data, isLoading: false })
+      });
+    } catch (error) {
+      this.setState({ isLoading: false,estudosErgonomicos:[] });
+      this.props.history.push('/estudosErgonomicos');
+    }
+    }
   }
 
   async remove(id) {
@@ -79,11 +100,40 @@ let item = JSON.parse(this.emptyItem);
   }
 
   async createNew() {
+    if(this.handleValidation(false)){
     this.props.history.push("/estudoErgonomico/new");
+    }
+  }
+
+  handleValidation(isPesquisar) {
+    const { empresa, setor, funcao } = this.state;
+
+    let errors = {};
+    let formIsValid = true;
+
+    if (!empresa) {
+      formIsValid = false;
+      errors["empresa"] = "O Campo  \"Empresa\" é obrigatorio!";
+    }
+    if (!isPesquisar) {
+      if (!setor) {
+        formIsValid = false;
+        errors["setor"] = "O Campo  \"Setor\" é obrigatorio!";
+      }
+
+      if (!funcao) {
+        formIsValid = false;
+        errors["funcao"] = "O Campo  \"Função\" é obrigatorio!";
+      }
+    }
+    console.log('Erros',errors);
+    console.log('formIsValid',formIsValid);
+    this.setState({ errors: errors });
+    return formIsValid;
   }
 
   render() {
-    const { item, estudosErgonomicos, empresas, setores, isLoading } = this.state;
+    const { estudosErgonomicos, empresa, setor, funcao, empresas, setores, funcoes, isLoading } = this.state;
 
     if (isLoading) {
       return <p>Loading...</p>;
@@ -95,7 +145,9 @@ let item = JSON.parse(this.emptyItem);
     var setorList = setores.map(function (setor) {
       return <option key={setor.id} value={JSON.stringify(setor)}>{setor.nome}</option>;
     });
-
+    var funcaoList = funcoes.map(function (funcao) {
+      return <option key={funcao.id} value={JSON.stringify(funcao)}>{funcao.nome}</option>;
+    });
 
     const estudoErgonomicoList = estudosErgonomicos.map(estudoErgonomico => {
       return <tr key={estudoErgonomico.id}>
@@ -122,29 +174,30 @@ let item = JSON.parse(this.emptyItem);
             <Form >
               <FormGroup>
                 <Label for="empresa" >Empresa<span style={{ color: "red" }}>*</span></Label>
-                <select name="empresa" value={JSON.stringify(item.empresa)} onChange={this.handleChange} >
+                <select name="empresa" value={JSON.stringify(empresa)} onChange={this.handleChange} >
                   <option value="">Selecione</option>
                   {empresaList}
                 </select>
-                {(this.state.errors) ? <span style={{ color: "red" }}>{this.state.errors["nome"]}</span> : ''}
+                {(this.state.errors) ? <span style={{ color: "red" }}>{this.state.errors["empresa"]}</span> : ''}
               </FormGroup>
               <FormGroup>
                 <Label for="setor" >Setor<span style={{ color: "red" }}>*</span></Label>
-                <select name="setor" value={JSON.stringify(item.setor)} onChange={this.handleChange}>
+                <select name="setor" value={JSON.stringify(setor)} onChange={this.handleChange}>
                   <option value="">Selecione</option>
                   {setorList}
                 </select>
-                {(this.state.errors) ? <span style={{ color: "red" }}>{this.state.errors["nome"]}</span> : ''}
+                {(this.state.errors) ? <span style={{ color: "red" }}>{this.state.errors["setor"]}</span> : ''}
               </FormGroup>
               <FormGroup>
                 <Label for="funcao" >Função<span style={{ color: "red" }}>*</span></Label>
-                <select name="funcao" value="" onChange={this.handleChange}>
+                <select name="funcao" value={JSON.stringify(funcao)} onChange={this.handleChange}>
                   <option value="">Selecione</option>
+                  {funcaoList}
                 </select>
-                {(this.state.errors) ? <span style={{ color: "red" }}>{this.state.errors["nome"]}</span> : ''}
+                {(this.state.errors) ? <span style={{ color: "red" }}>{this.state.errors["funcao"]}</span> : ''}
               </FormGroup>
               <FormGroup>
-                <Button color="primary" type="submit">Pesquisar</Button>{' '}
+                <Button color="primary" onClick={() => this.pesquisar()}>Pesquisar</Button>{' '}
                 <Button color="secondary" tag={Link} to="/home">Cancel</Button>
               </FormGroup>
             </Form>
