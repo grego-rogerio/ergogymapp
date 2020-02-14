@@ -101,7 +101,9 @@ class SetorList extends Component {
 
   async createNew() {
     if(this.handleValidation(false)){
-    this.props.history.push("/estudoErgonomico/new");
+      const { empresa, setor, funcao } = this.state;
+      let parametro = '?idEmpresa=' + empresa.id + '&idSetor=' + setor.id + '&idFuncao=' + funcao.id;      console.log('Parametro', parametro);
+      this.props.history.push(`/estudoErgonomico/new${parametro}`);
     }
   }
 
